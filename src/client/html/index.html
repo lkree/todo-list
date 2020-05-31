@@ -13,33 +13,33 @@
   <header class="text-white col-12  align-self-end main-header__title">TO-DO list</header>
 </section>
 <main class="row">
-  <section class="spinner">
+  <section class="spinner spinner--hide">
     <div class="spinner-border text-primary" role="status">
       <span class="sr-only">Loading...</span>
+    </div>
+  </section>
+  <section class="popup">
+    <div class="popup__main">
+      <div class="popup__close">&times;</div>
+      <main class="popup__body">
+
+      </main>
+      <div class="popup__controls">
+        <button class="popup__button popup__button--accept">Ок</button>
+        <button class="popup__button popup__button--decline">Отмена</button>
+      </div>
     </div>
   </section>
   <section class="main-add position-absolute">
     <button class="main-add__button"></button>
   </section>
   <section class="pt-5 w-100">
-    <ul>
-      <li class="row todo-list__item mt-3">
-        <div class="col-2"></div>
-        <main class="col-10 todo-list__info">
-          <div class="row">
-            <header class="col-8 todo-list__header">test header</header>
-            <div class="col-4">
-              <button class="todo-list__favourite-button"></button>
-            </div>
-          </div>
-        </main>
-      </li>
-    </ul>
+    <ul class="todo-list"></ul>
   </section>
 </main>
 <template>
   <section class="todo-item">
-    <li class="row todo-list__item mt-3">
+    <li class="row todo-list__item mt-3 w-100">
       <div class="col-2"></div>
       <main class="col-10 todo-list__info">
         <div class="row">
@@ -50,6 +50,14 @@
         </div>
       </main>
     </li>
+  </section>
+  <section class="todo-add">
+    <div>Название</div>
+    <input type="text">
+    <br>
+    <div>Описание</div>
+    <textarea cols="30"
+              rows="10"></textarea>
   </section>
 </template>
 </body>

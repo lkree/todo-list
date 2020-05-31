@@ -1,4 +1,9 @@
-import {ACLoader} from "../misc/interface";
+abstract class ACLoader {
+    static _spinner: HTMLElement;
+
+    static show(): void {};
+    static hide(): void {};
+}
 
 export default class Loader extends ACLoader {
     static _spinner: HTMLElement = document.querySelector('.spinner');

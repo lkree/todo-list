@@ -1,0 +1,17 @@
+export enum ClassNames {
+    todoItem = '.todo-list__item',
+    todoWrapper = '.todo-list',
+    todoItemHeader = '.todo-list__header',
+    todoItemFavouriteButton = '.todo-list__favourite-button',
+    todoItemFavouriteButtonFilled = '.todo-list__favourite-button--full',
+    popup = '.popup',
+    popupShow = '.popup--show',
+    popupBody = '.popup__body',
+    popupAccept = '.popup__button--accept',
+    popupClose = '.popup__close',
+    popupDecline = '.popup__button--decline',
+    todoAddButton = '.main-add__button',
+    todoAddPopupTemplate = '.todo-add',
+    todoAddPopupTitleInput = '.todo-add__title-input',
+    todoAddPopupDescriptionInput = '.todo-add__description-input',
+}

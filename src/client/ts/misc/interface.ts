@@ -1,17 +1,28 @@
-/* App */
-export abstract class ACApp {
-    abstract async init(): Promise<void>;
+/* ELHandler */
+import {Statuses} from "./Statuses";
+
+export interface IEventListItem {
+    elements: HTMLElement[];
+    handler: EventListenerOrEventListenerObject;
+    actions: string[];
+    statuses: Statuses[];
 }
 
-/* Loader */
-export abstract class ACLoader {
-    static _spinner: HTMLElement;
 
-    static show(): void {};
-    static hide(): void {};
-}
+const a: IEventListItem[] = [
+    {
+        elements: [document.createElement('div')],
+        handler: () => {},
+        actions: ['click'],
+        statuses: [Statuses.init]
+    },
+    {
+        elements: [document.createElement('div')],
+        handler: () => {},
+        actions: ['click'],
+        statuses: [Statuses.init]
+    },
+];
 
-/* ClientServer */
-export abstract class ACClientServer {
-    static renderList(): void {};
-}
+a.filter(e => e.statuses.includes(Statuses.destroy));
+

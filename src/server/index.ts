@@ -1,6 +1,9 @@
 // @ts-ignore
-import { Server as Backend } from 'miragejs';
+import {Request, Server as Backend} from 'miragejs';
 import Database from "./components/Database";
+import {Routes} from "./misc/routes";
+// @ts-ignore
+import Schema from "miragejs/orm/schema";
 
 export default class Server {
     static init(): void {
@@ -8,16 +11,10 @@ export default class Server {
             routes() {
                 this.namespace = 'api';
 
-                this.get('/todos', () => {
-                    return (
-                        [
-                            { id: 0, title: 'first title', description: 'first description' },
-                            { id: 1, title: 'second title', description: 'second description' }
-                        ]
-                    )
-                });
-                this.get('/todos1', () => {
-                    return new Database().getSomething();
+                this.get('/:route', (_: Schema<unknown>, FakeRequest: Request) => {
+                    const request: Routes = FakeRequest.params.route;
+
+                    return new Database(request).getResponse();
                 });
             },
         })
