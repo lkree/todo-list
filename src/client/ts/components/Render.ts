@@ -7,6 +7,7 @@ abstract class ACRender {
 
     abstract renderList(data: ITodoItem[]): void;
     abstract renderItem(wrapper: Element, template: HTMLElement, data: ITodoItem): void;
+    abstract removeItem(wrapper: Element, key: number): void;
 }
 
 export default class Render extends ACRender {
@@ -30,6 +31,7 @@ export default class Render extends ACRender {
         const element = template.cloneNode(true);
 
         (<HTMLElement>element).querySelector(ClassNames.todoItemHeader).textContent = data.title;
+        (<HTMLElement>element).setAttribute('key', data.key.toString());
 
         if (data.favourite)
             (<HTMLElement>element)
@@ -38,5 +40,11 @@ export default class Render extends ACRender {
                 .add(Utils.getShortClassName(ClassNames.todoItemFavouriteButtonFilled));
 
         wrapper.append(element);
+    }
+    removeItem(wrapper: Element, key: number) {
+        const removeRecord = wrapper.querySelector(`[key="${key}"]`);
+
+        if (removeRecord)
+            wrapper.removeChild(removeRecord);
     }
 }

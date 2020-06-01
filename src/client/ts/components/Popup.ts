@@ -12,6 +12,7 @@ abstract class ACPopup {
     protected _acceptButton: HTMLElement;
     protected _elHandler: ELHandler;
     protected _externalEventHandler: ELHandler;
+    protected _acceptButtonText: string;
 
     protected _init(): void {};
     abstract show(): this;
@@ -27,11 +28,13 @@ export default class Popup extends ACPopup {
     protected _acceptButton: HTMLElement = this._popup.querySelector(ClassNames.popupAccept);
     protected _elHandler: ELHandler;
     protected _externalEventHandler: ELHandler;
+    protected _acceptButtonText: string;
 
     constructor(
         acceptHandler: Function,
         private _externalHTML: string,
-        private _externalEventList: IEventListItem[]
+        private _externalEventList: IEventListItem[],
+        acceptButtonText?: string,
     ) {
         super();
         this._elHandler = new ELHandler([
@@ -51,6 +54,8 @@ export default class Popup extends ACPopup {
         this._externalEventHandler = new ELHandler(
             this._externalEventList
         );
+        this._acceptButtonText = acceptButtonText || 'Ок';
+        this._acceptButton.textContent = this._acceptButtonText;
         this._init();
     }
 
@@ -64,7 +69,7 @@ export default class Popup extends ACPopup {
     hide() {
         this._popup.classList.remove(Utils.getShortClassName(ClassNames.popupShow));
         this._elHandler.handle('remove', Statuses.destroy);
-        this._externalEventHandler.handle('add', Statuses.destroy);
+        this._externalEventHandler.handle('remove', Statuses.destroy);
 
         return this;
     }

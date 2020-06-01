@@ -1,7 +1,7 @@
 // @ts-ignore
-import * as firebase from "firebase/app";
+// import * as firebase from "firebase/app";
 // @ts-ignore
-import "firebase/firestore";
+// import "firebase/firestore";
 import {Routes} from "../misc/routes";
 import {IConfig, ITodoItem} from "../misc/interfaces";
 
@@ -11,9 +11,9 @@ abstract class ACDatabase {
 }
 
 const todos = [
-    { title: 'first', description: 'first description', favourite: true },
-    { title: 'second', description: 'second description', favourite: false  },
-    { title: 'third', description: 'third description', favourite: false  },
+    { key: 1590990726569, title: 'first', description: 'first description', favourite: true },
+    { key: 1590990726570, title: 'second', description: 'second description', favourite: false  },
+    { key: 1590990726571, title: 'third', description: 'third description', favourite: false  },
 ];
 
 export default class Database extends ACDatabase {
@@ -42,7 +42,7 @@ export default class Database extends ACDatabase {
             this[this._request]
                 ? this[this._request]
                 : this[Routes.default]
-        )();
+        ).call(this);
     }
 
     async [Routes.todos]() {

@@ -9,6 +9,7 @@ export interface IConfig {
     measurementId?: string;
 }
 export interface ITodoItem {
+    key: number;
     title: string;
     description: string;
     favourite?: boolean;

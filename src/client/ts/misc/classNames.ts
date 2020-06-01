@@ -1,4 +1,5 @@
 export enum ClassNames {
+    todoList = '.todo-list',
     todoItem = '.todo-list__item',
     todoWrapper = '.todo-list',
     todoItemHeader = '.todo-list__header',
@@ -14,4 +15,7 @@ export enum ClassNames {
     todoAddPopupTemplate = '.todo-add',
     todoAddPopupTitleInput = '.todo-add__title-input',
     todoAddPopupDescriptionInput = '.todo-add__description-input',
+    todoFull = '.todo-full',
+    todoFullTitle = '.todo-full__title',
+    todoFullDescription = '.todo-full__description',
 }
