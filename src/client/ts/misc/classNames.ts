@@ -1,6 +1,7 @@
 export enum ClassNames {
     todoList = '.todo-list',
     todoItem = '.todo-list__item',
+    todoItemDeleted = '.todo-list__item--deleted',
     todoWrapper = '.todo-list',
     todoItemHeader = '.todo-list__header',
     todoItemFavouriteButton = '.todo-list__favourite-button',

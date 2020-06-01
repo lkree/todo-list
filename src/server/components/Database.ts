@@ -11,9 +11,9 @@ abstract class ACDatabase {
 }
 
 const todos = [
-    { key: 1590990726569, title: 'first', description: 'first description', favourite: true },
-    { key: 1590990726570, title: 'second', description: 'second description', favourite: false  },
-    { key: 1590990726571, title: 'third', description: 'third description', favourite: false  },
+    { key: 1590990726569, title: 'first', description: 'first description', favourite: true, deleted: false },
+    { key: 1590990726570, title: 'second', description: 'second description', favourite: false, deleted: false  },
+    { key: 1590990726571, title: 'third', description: 'third description', favourite: false, deleted: false  },
 ];
 
 export default class Database extends ACDatabase {

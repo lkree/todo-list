@@ -2,6 +2,7 @@ import Popup from "./Popup";
 import {ClassNames} from "../misc/classNames";
 import Render from "./Render";
 import ClientServer from "../utils/ClientServer";
+import Utils from "../utils/Utils";
 
 abstract class ACEventListeners {
     static onAddButtonClick(clientServer: ClientServer, evt: Event): void {};
@@ -17,7 +18,8 @@ export default class EventListeners extends ACEventListeners {
                 key: Date.now(),
                 favourite: false,
                 title,
-                description
+                description,
+                deleted: false,
             };
 
             clientServer.addData([data]);
@@ -38,31 +40,33 @@ export default class EventListeners extends ACEventListeners {
         ).show();
     }
     static onRecordClick(clientServer: ClientServer, evt: Event): void {
-        function removeRecordHandler(evt: Event, popup: HTMLElement) {
-            const key = +popup.querySelector(ClassNames.todoFull).getAttribute('key');
-            clientServer.removeRecord(key);
+        if ((<HTMLElement>evt.target).matches(ClassNames.todoItemFavouriteButton)) {
+            (<HTMLElement>evt.target).classList.toggle(Utils.getShortClassName(ClassNames.todoItemFavouriteButtonFilled));
+        } else {
+            const key = +(<HTMLElement>evt.target).closest(ClassNames.todoItem).getAttribute('key');
+            const record = clientServer.getData(key)[0];
 
-            new Render().removeItem(document.querySelector(ClassNames.todoList), key);
+            function removeRecordHandler() {
+                clientServer.removeRecord(key);
+                new Render().removeItem(clientServer, document.querySelector(ClassNames.todoList), key);
+            }
+
+            const popupHTML = document
+                .querySelector('template')
+                .content
+                .querySelector(ClassNames.todoFull)
+                .cloneNode(true);
+
+            (<HTMLElement>popupHTML).querySelector(ClassNames.todoFullTitle).textContent = record.title;
+            (<HTMLElement>popupHTML).querySelector(ClassNames.todoFullDescription).textContent = record.description;
+            (<HTMLElement>popupHTML).setAttribute('key', key.toString());
+
+            new Popup(
+                removeRecordHandler,
+                (<HTMLElement>popupHTML).outerHTML,
+                [],
+                'Удалить'
+            ).show();
         }
-
-        const key = +(<HTMLElement>evt.target).closest(ClassNames.todoItem).getAttribute('key');
-        const record = clientServer.getData(key)[0];
-
-        const popupHTML = document
-            .querySelector('template')
-            .content
-            .querySelector(ClassNames.todoFull)
-            .cloneNode(true);
-
-        (<HTMLElement>popupHTML).querySelector(ClassNames.todoFullTitle).textContent = record.title;
-        (<HTMLElement>popupHTML).querySelector(ClassNames.todoFullDescription).textContent = record.description;
-        (<HTMLElement>popupHTML).setAttribute('key', key.toString());
-
-        new Popup(
-            removeRecordHandler,
-            (<HTMLElement>popupHTML).outerHTML,
-            [],
-            'Удалить'
-        ).show();
     };
 }

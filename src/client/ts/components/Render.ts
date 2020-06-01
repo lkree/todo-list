@@ -1,19 +1,21 @@
 import {ITodoItem} from "../../../server/misc/interfaces";
 import {ClassNames} from "../misc/classNames";
 import Utils from "../utils/Utils";
+import ClientServer from "../utils/ClientServer";
 
 abstract class ACRender {
     protected _template: HTMLTemplateElement;
 
-    abstract renderList(data: ITodoItem[]): void;
+    abstract renderList(clientServer: ClientServer): void;
     abstract renderItem(wrapper: Element, template: HTMLElement, data: ITodoItem): void;
-    abstract removeItem(wrapper: Element, key: number): void;
+    abstract removeItem(clientServer: ClientServer, wrapper: Element, key: number): void;
 }
 
 export default class Render extends ACRender {
     protected _template: HTMLTemplateElement = document.querySelector('template');
 
-    renderList(data: ITodoItem[]): void {
+    renderList(clientServer: ClientServer): void {
+        const data = clientServer.getData();
         const listItemTemplate = this._template.content.querySelector(ClassNames.todoItem).cloneNode(true);
         const fragment = document.createDocumentFragment();
         const listWrapper = document.querySelector(ClassNames.todoWrapper);
@@ -41,10 +43,13 @@ export default class Render extends ACRender {
 
         wrapper.append(element);
     }
-    removeItem(wrapper: Element, key: number) {
-        const removeRecord = wrapper.querySelector(`[key="${key}"]`);
+    removeItem(clientServer: ClientServer, wrapper: Element, key: number) {
+        const removeRecordNode = wrapper.querySelector(`[key="${key}"]`);
+        const removeRecord = clientServer.getData(key)[0];
 
-        if (removeRecord)
-            wrapper.removeChild(removeRecord);
+        if (!removeRecord)
+            wrapper.removeChild(removeRecordNode);
+        else
+            removeRecordNode.classList.add(Utils.getShortClassName(ClassNames.todoItemDeleted));
     }
 }

@@ -15,8 +15,8 @@ abstract class ACPopup {
     protected _acceptButtonText: string;
 
     protected _init(): void {};
-    abstract show(): this;
-    abstract hide(): this;
+    abstract show(): Popup;
+    abstract hide(): Popup;
     abstract destroy(): void;
 }
 
@@ -59,14 +59,14 @@ export default class Popup extends ACPopup {
         this._init();
     }
 
-    show() {
+    show(): Popup {
         this._popup.classList.add(Utils.getShortClassName(ClassNames.popupShow));
         this._elHandler.handle('add', Statuses.init);
         this._externalEventHandler.handle('add', Statuses.init);
 
         return this;
     }
-    hide() {
+    hide(): Popup {
         this._popup.classList.remove(Utils.getShortClassName(ClassNames.popupShow));
         this._elHandler.handle('remove', Statuses.destroy);
         this._externalEventHandler.handle('remove', Statuses.destroy);

@@ -14,10 +14,9 @@ export default class ClientServer extends ACClientServer {
     protected _data: ITodoItem[];
 
     async renderList(): Promise<void> {
-        const data: ITodoItem[] = await fetch(`/api/${Routes.todos}`).then(data => data.json());
-        this._data = data;
+        this._data = await fetch(`/api/${Routes.todos}`).then(data => data.json());;
 
-        new Render().renderList(data);
+        new Render().renderList(this);
     }
 
     getData(key?: number): ITodoItem[] {
@@ -27,9 +26,16 @@ export default class ClientServer extends ACClientServer {
     }
     addData(items: ITodoItem[]): void {
         this._data = [...this._data, ...items];
-        console.log(this._data);
     }
     removeRecord(key: number): void {
-        this._data = this._data.filter(r => r.key !== key);
+        const record = this._data.find(r => r.key === key);
+        const recordIndex = this._data.indexOf(record);
+
+        if (record.deleted) {
+            this._data.splice(recordIndex, 1);
+        } else {
+            record.deleted = true;
+            this._data.splice(recordIndex, 1, record);
+        }
     }
 }

@@ -12,5 +12,6 @@ export interface ITodoItem {
     key: number;
     title: string;
     description: string;
-    favourite?: boolean;
+    favourite: boolean;
+    deleted: boolean;
 }
