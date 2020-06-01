@@ -2,15 +2,14 @@ import Popup from "./Popup";
 import {ClassNames} from "../misc/classNames";
 import Render from "./Render";
 import ClientServer from "../utils/ClientServer";
-import {ITodoItem} from "../../../server/misc/interfaces";
 
 abstract class ACEventListeners {
-    static onAddButtonClick(evt: Event): void {};
-    static onRecordClick(evt: Event): void {};
+    static onAddButtonClick(clientServer: ClientServer, evt: Event): void {};
+    static onRecordClick(clientServer: ClientServer, evt: Event): void {};
 }
 
 export default class EventListeners extends ACEventListeners {
-    static onAddButtonClick(evt: Event): void {
+    static onAddButtonClick(clientServer: ClientServer, evt: Event): void {
         function addRecordHandler(evt: Event, popup: HTMLElement) {
             const title = (<HTMLInputElement>popup.querySelector(ClassNames.todoAddPopupTitleInput)).value;
             const description = (<HTMLInputElement>popup.querySelector(ClassNames.todoAddPopupDescriptionInput)).value;
@@ -21,7 +20,7 @@ export default class EventListeners extends ACEventListeners {
                 description
             };
 
-            this.addData([data]);
+            clientServer.addData([data]);
             new Render()
                 .renderItem(undefined, undefined, data)
         }
@@ -38,17 +37,16 @@ export default class EventListeners extends ACEventListeners {
             []
         ).show();
     }
-    static onRecordClick<T extends ClientServer>(evt: Event): void {
-        const self: T = this;
+    static onRecordClick(clientServer: ClientServer, evt: Event): void {
         function removeRecordHandler(evt: Event, popup: HTMLElement) {
             const key = +popup.querySelector(ClassNames.todoFull).getAttribute('key');
-            self.removeRecord(key);
+            clientServer.removeRecord(key);
 
             new Render().removeItem(document.querySelector(ClassNames.todoList), key);
         }
 
         const key = +(<HTMLElement>evt.target).closest(ClassNames.todoItem).getAttribute('key');
-        const record = self.getData(key)[0];
+        const record = clientServer.getData(key)[0];
 
         const popupHTML = document
             .querySelector('template')
