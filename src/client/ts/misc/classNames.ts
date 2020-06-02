@@ -6,6 +6,7 @@ export enum ClassNames {
     todoItemHeader = '.todo-list__header',
     todoItemFavouriteButton = '.todo-list__favourite-button',
     todoItemFavouriteButtonFilled = '.todo-list__favourite-button--full',
+    todoItemOptionsOpenButton = '.todo-list__options-open-button',
     popup = '.popup',
     popupShow = '.popup--show',
     popupBody = '.popup__body',

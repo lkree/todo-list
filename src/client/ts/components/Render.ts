@@ -15,7 +15,7 @@ export default class Render extends ACRender {
     protected _template: HTMLTemplateElement = document.querySelector('template');
 
     renderList(clientServer: ClientServer): void {
-        const data = clientServer.getData();
+        const data = <ITodoItem[]>clientServer.getData();
         const listItemTemplate = this._template.content.querySelector(ClassNames.todoItem).cloneNode(true);
         const fragment = document.createDocumentFragment();
         const listWrapper = document.querySelector(ClassNames.todoWrapper);
@@ -45,7 +45,7 @@ export default class Render extends ACRender {
     }
     removeItem(clientServer: ClientServer, wrapper: Element, key: number) {
         const removeRecordNode = wrapper.querySelector(`[key="${key}"]`);
-        const removeRecord = clientServer.getData(key)[0];
+        const removeRecord = <ITodoItem>clientServer.getData(key);
 
         if (!removeRecord)
             wrapper.removeChild(removeRecordNode);

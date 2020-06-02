@@ -6,7 +6,7 @@ abstract class ACClientServer {
     protected _data: ITodoItem[];
 
     abstract renderList(): void;
-    abstract getData(): ITodoItem[] | ITodoItem;
+    abstract getData(key?: number): ITodoItem[] | ITodoItem;
     abstract addData(items: ITodoItem[]): void;
 }
 
@@ -19,9 +19,9 @@ export default class ClientServer extends ACClientServer {
         new Render().renderList(this);
     }
 
-    getData(key?: number): ITodoItem[] {
+    getData(key?: number): ITodoItem | ITodoItem[] {
         return key
-            ? [this._data.find(r => r.key === key)]
+            ? this._data.find(r => r.key === key)
             : this._data;
     }
     addData(items: ITodoItem[]): void {
@@ -34,8 +34,7 @@ export default class ClientServer extends ACClientServer {
         if (record.deleted) {
             this._data.splice(recordIndex, 1);
         } else {
-            record.deleted = true;
-            this._data.splice(recordIndex, 1, record);
+            this._data[recordIndex].deleted = true;
         }
     }
 }

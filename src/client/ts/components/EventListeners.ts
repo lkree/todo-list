@@ -3,6 +3,7 @@ import {ClassNames} from "../misc/classNames";
 import Render from "./Render";
 import ClientServer from "../utils/ClientServer";
 import Utils from "../utils/Utils";
+import {ITodoItem} from "../../../server/misc/interfaces";
 
 abstract class ACEventListeners {
     static onAddButtonClick(clientServer: ClientServer, evt: Event): void {};
@@ -40,30 +41,29 @@ export default class EventListeners extends ACEventListeners {
         ).show();
     }
     static onRecordClick(clientServer: ClientServer, evt: Event): void {
-        if ((<HTMLElement>evt.target).matches(ClassNames.todoItemFavouriteButton)) {
-            (<HTMLElement>evt.target).classList.toggle(Utils.getShortClassName(ClassNames.todoItemFavouriteButtonFilled));
-        } else {
-            const key = +(<HTMLElement>evt.target).closest(ClassNames.todoItem).getAttribute('key');
-            const record = clientServer.getData(key)[0];
+        const target = Utils.getEventTarget(evt);
+        const key = +target.closest(ClassNames.todoItem).getAttribute('key');
+        const record = <ITodoItem>clientServer.getData(key);
 
+        if (target.matches(ClassNames.todoItemFavouriteButton)) {
+            target.classList.toggle(Utils.getShortClassName(ClassNames.todoItemFavouriteButtonFilled));
+        } else if (target.matches(ClassNames.todoItemOptionsOpenButton)) {
+
+        } else {
             function removeRecordHandler() {
                 clientServer.removeRecord(key);
                 new Render().removeItem(clientServer, document.querySelector(ClassNames.todoList), key);
             }
 
-            const popupHTML = document
-                .querySelector('template')
-                .content
-                .querySelector(ClassNames.todoFull)
-                .cloneNode(true);
+            const popupHTML = Utils.getTemplateClone(ClassNames.todoFull);
 
-            (<HTMLElement>popupHTML).querySelector(ClassNames.todoFullTitle).textContent = record.title;
-            (<HTMLElement>popupHTML).querySelector(ClassNames.todoFullDescription).textContent = record.description;
-            (<HTMLElement>popupHTML).setAttribute('key', key.toString());
+            popupHTML.querySelector(ClassNames.todoFullTitle).textContent = record.title;
+            popupHTML.querySelector(ClassNames.todoFullDescription).textContent = record.description;
+            popupHTML.setAttribute('key', key.toString());
 
             new Popup(
                 removeRecordHandler,
-                (<HTMLElement>popupHTML).outerHTML,
+                popupHTML.outerHTML,
                 [],
                 'Удалить'
             ).show();
