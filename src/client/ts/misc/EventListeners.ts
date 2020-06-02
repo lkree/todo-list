@@ -1,18 +1,13 @@
-import Popup from './Popup';
-import {ClassNames} from '../misc/classNames';
-import Render from './Render';
 import ClientServer from '../utils/ClientServer';
-import Utils from '../utils/Utils';
 import {ITodoItem} from '../../../server/misc/interfaces';
-import ContextMenu from './ContextMenu';
-import {Statuses} from '../misc/Statuses';
+import {ClassNames} from './classNames';
+import Render from '../components/Render';
+import Utils from '../utils/Utils';
+import Popup from '../components/Popup';
+import ContextMenu from '../components/ContextMenu';
+import {Statuses} from './Statuses';
 
-abstract class ACEventListeners {
-    static onAddButtonClick(clientServer: ClientServer, evt: Event): void {};
-    static onRecordClick(clientServer: ClientServer, evt: Event): void {};
-}
-
-function editRecordHandler(
+export function editRecordHandler(
     clientServer: ClientServer,
     record: ITodoItem,
     key: number,
@@ -30,11 +25,11 @@ function editRecordHandler(
     clientServer.updateRecord(newData);
     new Render().updateItem(newData, document.querySelector(ClassNames.todoList), key);
 }
-function removeRecordHandler(clientServer: ClientServer, key: number): void {
+export function removeRecordHandler(clientServer: ClientServer, key: number): void {
     clientServer.removeRecord(key);
     new Render().removeItem(clientServer, document.querySelector(ClassNames.todoList), key);
 }
-function openFullInfo(clientServer: ClientServer, record: ITodoItem, key: number): void {
+export function openFullInfo(clientServer: ClientServer, record: ITodoItem, key: number): void {
     const popupHTML = Utils.getTemplateClone(ClassNames.todoFull);
 
     popupHTML.querySelector(ClassNames.todoFullTitle).textContent = record.title;
@@ -48,7 +43,7 @@ function openFullInfo(clientServer: ClientServer, record: ITodoItem, key: number
         'Удалить'
     ).show();
 }
-function contextMenuOpen(clientServer: ClientServer, target: HTMLElement, record: ITodoItem, key: number): void {
+export function contextMenuOpen(clientServer: ClientServer, target: HTMLElement, record: ITodoItem, key: number): void {
     new ContextMenu(
         <HTMLElement>target.nextElementSibling,
         [
@@ -82,7 +77,7 @@ function contextMenuOpen(clientServer: ClientServer, target: HTMLElement, record
         ]
     ).show();
 }
-function editRecord(clientServer: ClientServer, record: ITodoItem, key: number): void {
+export function editRecord(clientServer: ClientServer, record: ITodoItem, key: number): void {
     const popupHTML = Utils.getTemplateClone(ClassNames.todoEdit);
 
     popupHTML.querySelector(ClassNames.todoEditTitle).textContent = record.title;
@@ -96,50 +91,27 @@ function editRecord(clientServer: ClientServer, record: ITodoItem, key: number):
         'Редактировать'
     ).show();
 }
-
-export default class EventListeners extends ACEventListeners {
-    static onAddButtonClick(clientServer: ClientServer, evt: Event): void {
-        function addRecordHandler(evt: Event, popup: HTMLElement): void {
-            const title = (<HTMLInputElement>popup.querySelector(ClassNames.todoAddPopupTitleInput)).value;
-            const description = (<HTMLInputElement>popup.querySelector(ClassNames.todoAddPopupDescriptionInput)).value;
-            const data = {
-                key: Date.now(),
-                favourite: false,
-                title,
-                description,
-                deleted: false
-            };
-
-            clientServer.addData([data]);
-            new Render()
-                .renderItem(undefined, undefined, data)
-        }
-
-        const popupHTML = document
-            .querySelector('template')
-            .content
-            .querySelector(ClassNames.todoAddPopupTemplate)
-            .innerHTML;
-
-        new Popup(
-            addRecordHandler,
-            popupHTML,
-            []
-        ).show();
-    }
-    static onRecordClick(clientServer: ClientServer, evt: Event): void {
-        evt.stopPropagation();
-
-        const target = Utils.getEventTarget(evt);
-        const key = +target.closest(ClassNames.todoItem).getAttribute('key');
-        const record = <ITodoItem>clientServer.getData(key);
-
-        if (target.matches(ClassNames.todoItemFavouriteButton)) {
-            target.classList.toggle(Utils.getShortClassName(ClassNames.todoItemFavouriteButtonFilled));
-        } else if (target.matches(ClassNames.todoItemOptionsOpenButton)) {
-            contextMenuOpen(clientServer, target, record, key);
-        } else {
-            openFullInfo(clientServer, record, key);
-        }
+export function addRecordHandler(clientServer: ClientServer, evt: Event, popup: HTMLElement): void {
+    const title = (<HTMLInputElement>popup.querySelector(ClassNames.todoAddPopupTitleInput)).value;
+    const description = (<HTMLInputElement>popup.querySelector(ClassNames.todoAddPopupDescriptionInput)).value;
+    const data = {
+        key: Date.now(),
+        favourite: false,
+        title,
+        description,
+        deleted: false
     };
+
+    clientServer.addData([data]);
+    new Render()
+        .renderItem(undefined, undefined, data)
+}
+export function addRecord(clientServer: ClientServer): void {
+    const popupHTML = Utils.getTemplateClone(ClassNames.todoAddPopupTemplate).innerHTML;
+
+    new Popup(
+        addRecordHandler.bind(null, clientServer),
+        popupHTML,
+        []
+    ).show();
 }

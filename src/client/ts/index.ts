@@ -8,7 +8,7 @@ import Server from '../../server';
 import ELActionsHandler from './utils/ELActionsHandler';
 import {Statuses} from './misc/Statuses';
 import {ClassNames} from './misc/classNames';
-import EventListeners from './components/EventListeners';
+import EventListenersWrapper from './components/EventListenersWrapper';
 
 abstract class ACApp {
     abstract async init(): Promise<void>;
@@ -25,13 +25,13 @@ class App extends ACApp {
             {
                 elements: [document.querySelector(ClassNames.todoAddButton)],
                 actions: ['click'],
-                handler: EventListeners.onAddButtonClick.bind(null, clientServerHandler),
+                handler: EventListenersWrapper.onAddButtonClick.bind(null, clientServerHandler),
                 statuses: [Statuses.init, Statuses.destroy]
             },
             {
                 elements: [document.querySelector(ClassNames.todoList)],
                 actions: ['click'],
-                handler: EventListeners.onRecordClick.bind(null, clientServerHandler),
+                handler: EventListenersWrapper.onRecordClick.bind(null, clientServerHandler),
                 statuses: [Statuses.init, Statuses.destroy]
             }
         ]).handle('add', Statuses.init);
