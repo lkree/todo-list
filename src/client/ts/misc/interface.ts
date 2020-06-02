@@ -1,5 +1,5 @@
 /* ELHandler */
-import {Statuses} from "./Statuses";
+import {Statuses} from './Statuses';
 
 export interface IEventListItem {
     elements: HTMLElement[];
@@ -8,3 +8,8 @@ export interface IEventListItem {
     statuses: Statuses[];
 }
 
+/* ContextMenu */
+export interface IListOfAction {
+    title: string;
+    className: string;
+}

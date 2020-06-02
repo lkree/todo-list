@@ -1,0 +1,42 @@
+.context-menu
+    position: absolute
+
+    left: -80px
+
+    display: none
+
+    background: #fff
+    border: 1px solid
+
+    z-index: 1
+
+    margin: 0 0 10px 0
+
+    animation: appear 0.5s ease
+
+.context-menu--show
+    display: flex
+    flex-direction: column
+
+.context-menu__item
+    border-bottom: 1px solid
+
+    color: #000
+
+    padding: 10px 15px
+
+    &:last-of-type
+        border: none
+
+    &:hover
+        background: red
+        color: #fff
+        cursor: pointer
+
+@keyframes appear
+    0%
+        opacity: 0
+    50%
+        opacity: 0.5
+    100%
+        opacity: 1

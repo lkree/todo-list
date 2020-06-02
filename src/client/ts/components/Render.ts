@@ -1,7 +1,8 @@
-import {ITodoItem} from "../../../server/misc/interfaces";
-import {ClassNames} from "../misc/classNames";
-import Utils from "../utils/Utils";
-import ClientServer from "../utils/ClientServer";
+import {ITodoItem} from '../../../server/misc/interfaces';
+import {ClassNames} from '../misc/classNames';
+import Utils from '../utils/Utils';
+import ClientServer from '../utils/ClientServer';
+import {IListOfAction} from '../misc/interface';
 
 abstract class ACRender {
     protected _template: HTMLTemplateElement;
@@ -9,6 +10,7 @@ abstract class ACRender {
     abstract renderList(clientServer: ClientServer): void;
     abstract renderItem(wrapper: Element, template: HTMLElement, data: ITodoItem): void;
     abstract removeItem(clientServer: ClientServer, wrapper: Element, key: number): void;
+    abstract updateItem(record: ITodoItem, wrapper: HTMLElement, key: number): void;
 }
 
 export default class Render extends ACRender {
@@ -26,24 +28,24 @@ export default class Render extends ACRender {
         listWrapper.append(fragment);
     }
     renderItem(
-        wrapper = document.querySelector(ClassNames.todoWrapper),
-        template = this._template.content.querySelector(ClassNames.todoItem).cloneNode(true),
-        data: ITodoItem,
+        wrapper: HTMLElement = document.querySelector(ClassNames.todoWrapper),
+        template: Node = this._template.content.querySelector(ClassNames.todoItem).cloneNode(true),
+        data: ITodoItem
     ): void {
-        const element = template.cloneNode(true);
+        const element = <HTMLElement>template.cloneNode(true);
 
-        (<HTMLElement>element).querySelector(ClassNames.todoItemHeader).textContent = data.title;
-        (<HTMLElement>element).setAttribute('key', data.key.toString());
+        element.querySelector(ClassNames.todoItemHeader).textContent = data.title;
+        element.setAttribute('key', data.key.toString());
 
         if (data.favourite)
-            (<HTMLElement>element)
+            element
                 .querySelector(ClassNames.todoItemFavouriteButton)
                 .classList
                 .add(Utils.getShortClassName(ClassNames.todoItemFavouriteButtonFilled));
 
         wrapper.append(element);
     }
-    removeItem(clientServer: ClientServer, wrapper: Element, key: number) {
+    removeItem(clientServer: ClientServer, wrapper: Element, key: number): void {
         const removeRecordNode = wrapper.querySelector(`[key="${key}"]`);
         const removeRecord = <ITodoItem>clientServer.getData(key);
 
@@ -51,5 +53,26 @@ export default class Render extends ACRender {
             wrapper.removeChild(removeRecordNode);
         else
             removeRecordNode.classList.add(Utils.getShortClassName(ClassNames.todoItemDeleted));
+    }
+    updateItem(record: ITodoItem, wrapper: HTMLElement, key: number): void {
+        const recordElement = wrapper.querySelector(`[key="${key}"]`);
+
+        recordElement.querySelector(ClassNames.todoItemHeader).textContent = record.title;
+    }
+
+    static renderContextMenu(items: IListOfAction[], wrapper: HTMLElement): void {
+        const listItemTemplate = Utils.getTemplateClone(ClassNames.contextMenuItem);
+        const fragment = document.createDocumentFragment();
+
+        items.forEach(item => {
+            const element = <HTMLElement>listItemTemplate.cloneNode(true);
+
+            element.textContent = item.title;
+            element.classList.add(Utils.getShortClassName(item.className));
+
+            fragment.append(element);
+        });
+
+        wrapper.append(fragment);
     }
 }

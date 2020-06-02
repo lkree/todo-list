@@ -1,6 +1,6 @@
-import {Routes} from "../../../server/misc/routes";
-import Render from "../components/Render";
-import {ITodoItem} from "../../../server/misc/interfaces";
+import {Routes} from '../../../server/misc/routes';
+import Render from '../components/Render';
+import {ITodoItem} from '../../../server/misc/interfaces';
 
 abstract class ACClientServer {
     protected _data: ITodoItem[];
@@ -8,6 +8,8 @@ abstract class ACClientServer {
     abstract renderList(): void;
     abstract getData(key?: number): ITodoItem[] | ITodoItem;
     abstract addData(items: ITodoItem[]): void;
+    abstract updateRecord(record: ITodoItem): void;
+    abstract removeRecord(key: number): void;
 }
 
 export default class ClientServer extends ACClientServer {
@@ -27,14 +29,22 @@ export default class ClientServer extends ACClientServer {
     addData(items: ITodoItem[]): void {
         this._data = [...this._data, ...items];
     }
+    updateRecord(record: ITodoItem): void {
+        this._data = this._data.map(r => {
+            if (r.key === record.key) {
+                return record;
+            }
+
+            return r;
+        })
+    }
     removeRecord(key: number): void {
         const record = this._data.find(r => r.key === key);
         const recordIndex = this._data.indexOf(record);
 
-        if (record.deleted) {
+        if (record.deleted)
             this._data.splice(recordIndex, 1);
-        } else {
+        else
             this._data[recordIndex].deleted = true;
-        }
     }
 }

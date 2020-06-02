@@ -1,8 +1,8 @@
-import {ClassNames} from "../misc/classNames";
-import Utils from "../utils/Utils";
-import ELHandler from "../utils/ELHandler";
-import {IEventListItem} from "../misc/interface";
-import {Statuses} from "../misc/Statuses";
+import {ClassNames} from '../misc/classNames';
+import Utils from '../utils/Utils';
+import ELActionsHandler from '../utils/ELActionsHandler';
+import {IEventListItem} from '../misc/interface';
+import {Statuses} from '../misc/Statuses';
 
 abstract class ACPopup {
     protected _popup: HTMLElement;
@@ -10,9 +10,10 @@ abstract class ACPopup {
     protected _closeButton: HTMLElement;
     protected _declineButton: HTMLElement;
     protected _acceptButton: HTMLElement;
-    protected _elHandler: ELHandler;
-    protected _externalEventHandler: ELHandler;
+    protected _elHandler: ELActionsHandler;
+    protected _externalEventHandler: ELActionsHandler;
     protected _acceptButtonText: string;
+    protected _acceptHandler: Function;
 
     protected _init(): void {};
     abstract show(): Popup;
@@ -26,36 +27,17 @@ export default class Popup extends ACPopup {
     protected _closeButton: HTMLElement = this._popup.querySelector(ClassNames.popupClose);
     protected _declineButton: HTMLElement = this._popup.querySelector(ClassNames.popupDecline);
     protected _acceptButton: HTMLElement = this._popup.querySelector(ClassNames.popupAccept);
-    protected _elHandler: ELHandler;
-    protected _externalEventHandler: ELHandler;
-    protected _acceptButtonText: string;
+    protected _elHandler: ELActionsHandler;
+    protected _externalEventHandler: ELActionsHandler;
+
 
     constructor(
-        acceptHandler: Function,
+        protected _acceptHandler: Function,
         private _externalHTML: string,
         private _externalEventList: IEventListItem[],
-        acceptButtonText?: string,
+        protected _acceptButtonText: string = 'Ок'
     ) {
         super();
-        this._elHandler = new ELHandler([
-            {
-                elements: [this._closeButton, this._declineButton],
-                actions: ['click'],
-                statuses: [Statuses.init, Statuses.destroy],
-                handler: this.hide.bind(this)
-            },
-            {
-                elements: [this._acceptButton],
-                actions: ['click'],
-                statuses: [Statuses.init, Statuses.destroy],
-                handler: evt => { acceptHandler(evt, this._popup); this.hide() }
-            }
-        ]);
-        this._externalEventHandler = new ELHandler(
-            this._externalEventList
-        );
-        this._acceptButtonText = acceptButtonText || 'Ок';
-        this._acceptButton.textContent = this._acceptButtonText;
         this._init();
     }
 
@@ -74,12 +56,31 @@ export default class Popup extends ACPopup {
         return this;
     }
     destroy(): void {
-        this.hide();
         this._popupBody.innerHTML = '';
     }
 
     protected _init(): void {
         this.destroy();
+
+        this._elHandler = new ELActionsHandler([
+            {
+                elements: [this._closeButton, this._declineButton],
+                actions: ['click'],
+                statuses: [Statuses.init, Statuses.destroy],
+                handler: this.hide.bind(this)
+            },
+            {
+                elements: [this._acceptButton],
+                actions: ['click'],
+                statuses: [Statuses.init, Statuses.destroy],
+                handler: evt => { this._acceptHandler(evt, this._popup); this.hide() }
+            }
+        ]);
+        this._externalEventHandler = new ELActionsHandler(
+            this._externalEventList
+        );
+        this._acceptButton.textContent = this._acceptButtonText;
+
         this._popupBody.innerHTML = this._externalHTML;
     }
 }

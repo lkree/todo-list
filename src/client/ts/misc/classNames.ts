@@ -20,4 +20,10 @@ export enum ClassNames {
     todoFull = '.todo-full',
     todoFullTitle = '.todo-full__title',
     todoFullDescription = '.todo-full__description',
+    todoEdit = '.todo-edit',
+    todoEditTitle = '.todo-edit__title',
+    todoEditDescription = '.todo-edit__description',
+    contextMenu = '.context-menu',
+    contextMenuShow = '.context-menu--show',
+    contextMenuItem = '.context-menu__item',
 }

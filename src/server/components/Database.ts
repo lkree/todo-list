@@ -1,9 +1,7 @@
-// @ts-ignore
 // import * as firebase from "firebase/app";
-// @ts-ignore
 // import "firebase/firestore";
-import {Routes} from "../misc/routes";
-import {IConfig, ITodoItem} from "../misc/interfaces";
+import {Routes} from '../misc/routes';
+import {IConfig, ITodoItem} from '../misc/interfaces';
 
 abstract class ACDatabase {
     abstract [Routes.todos](): Promise<ITodoItem[]>;
@@ -18,7 +16,7 @@ const todos = [
 
 export default class Database extends ACDatabase {
     private readonly _config: IConfig;
-    private _firebase: any;
+    private _firebase: unknown;
 
     constructor(private _request: Routes) {
         super();
@@ -37,7 +35,7 @@ export default class Database extends ACDatabase {
         // firebase.firestore.setLogLevel('debug');
     }
 
-    getResponse() {
+    getResponse(): unknown {
         return (
             this[this._request]
                 ? this[this._request]
@@ -45,7 +43,7 @@ export default class Database extends ACDatabase {
         ).call(this);
     }
 
-    async [Routes.todos]() {
+    async [Routes.todos](): Promise<ITodoItem[]> {
         // this._firebase.collection("users").add({
         //     first: "Ada",
         //     last: "Lovelace",
@@ -62,7 +60,7 @@ export default class Database extends ACDatabase {
         // return;
         return todos;
     }
-    async [Routes.default]() {
+    async [Routes.default](): Promise<{error: string}> {
         return {error: 'route didnt found'};
     }
 }

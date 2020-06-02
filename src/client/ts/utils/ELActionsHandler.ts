@@ -1,5 +1,5 @@
-import {IEventListItem} from "../misc/interface";
-import {Statuses} from "../misc/Statuses";
+import {IEventListItem} from '../misc/interface';
+import {Statuses} from '../misc/Statuses';
 
 abstract class ACELHandler {
     protected _eventList: IEventListItem[];
@@ -9,19 +9,19 @@ abstract class ACELHandler {
     protected _handleListeners(type: 'addEventListener' | 'removeEventListener', status: string): void {};
 }
 
-export default class ELHandler extends ACELHandler {
+export default class ELActionsHandler extends ACELHandler {
     constructor(protected _eventList: IEventListItem[]) {
         super();
     }
 
-    handle(action: 'add' | 'remove', status: Statuses) {
+    handle(action: 'add' | 'remove', status: Statuses): void {
         this._handleListeners(
             action === 'add' ? 'addEventListener' : 'removeEventListener',
             status
         );
     }
 
-    protected _handleListeners(type: 'addEventListener' | 'removeEventListener', status: Statuses) {
+    protected _handleListeners(type: 'addEventListener' | 'removeEventListener', status: Statuses): void {
         this._eventList
             .filter(e => e.statuses.includes(status))
             .forEach(e => {
