@@ -25,16 +25,18 @@ class App extends ACApp {
             {
                 elements: [document.querySelector(ClassNames.todoAddButton)],
                 actions: ['click'],
-                handler: EventListenersWrapper.onAddButtonClick.bind(null, clientServerHandler),
+                args: {},
+                handler: EventListenersWrapper.onAddButtonClick,
                 statuses: [Statuses.init, Statuses.destroy]
             },
             {
                 elements: [document.querySelector(ClassNames.todoList)],
                 actions: ['click'],
-                handler: EventListenersWrapper.onRecordClick.bind(null, clientServerHandler),
+                args: {},
+                handler: EventListenersWrapper.onRecordClick,
                 statuses: [Statuses.init, Statuses.destroy]
             }
-        ]).handle('add', Statuses.init);
+        ], clientServerHandler).handle('add', Statuses.init);
         Loader.hide();
     }
 }

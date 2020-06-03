@@ -3,7 +3,8 @@ import {Statuses} from './Statuses';
 
 export interface IEventListItem {
     elements: HTMLElement[];
-    handler: EventListenerOrEventListenerObject;
+    handler: Function;
+    args: {};
     actions: string[];
     statuses: Statuses[];
 }

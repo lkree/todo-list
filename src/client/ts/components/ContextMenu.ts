@@ -4,6 +4,7 @@ import {Statuses} from '../misc/Statuses';
 import Render from './Render';
 import Utils from '../utils/Utils';
 import {ClassNames} from '../misc/classNames';
+import ClientServer from '../utils/ClientServer';
 
 abstract class ACContextMenu {
     protected _contextMenu: HTMLElement;
@@ -21,6 +22,7 @@ abstract class ACContextMenu {
 
 interface IExternalEventListItem {
     listOfActions: IListOfAction;
+    args: {};
     handler: Function;
     actions: string[];
     statuses: Statuses[];
@@ -37,7 +39,8 @@ export default class ContextMenu extends ACContextMenu {
 
     constructor(
         protected _wrapper: HTMLElement,
-        private _contextMenuPropsList: IExternalEventListItem[]
+        private _contextMenuPropsList: IExternalEventListItem[],
+        private _clientServer: ClientServer
     ) {
         super();
         this._init();
@@ -67,7 +70,7 @@ export default class ContextMenu extends ACContextMenu {
         return {
             ...element,
             elements: [this._wrapper.querySelector(element.listOfActions.className)],
-            handler: evt => { evt.stopPropagation(); element.handler(evt); this.hide() }
+            handler: (args: {}, evt: Event) => { evt.stopPropagation(); element.handler(args, evt); this.hide() }
         }
     }
     private _checkForAlreadyOpened(): void {
@@ -86,12 +89,13 @@ export default class ContextMenu extends ACContextMenu {
             {
                 elements: [document.body],
                 actions: ['click'],
+                args: {},
                 statuses: [Statuses.init, Statuses.destroy],
                 handler: this.hide.bind(this)
             }
-        ]);
+        ], this._clientServer);
         this._externalEventHandler = new ELActionsHandler(
-            this._externalEventList
+            this._externalEventList, this._clientServer
         );
     };
 

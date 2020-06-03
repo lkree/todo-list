@@ -7,29 +7,15 @@ import Popup from '../components/Popup';
 import ContextMenu from '../components/ContextMenu';
 import {Statuses} from './Statuses';
 
-export function editRecordHandler(
-    clientServer: ClientServer,
-    record: ITodoItem,
-    key: number,
-    _: Event,
-    popup: HTMLElement
-): void {
-    const oldData = <ITodoItem>clientServer.getData(key);
-
-    const newData: ITodoItem = {
-        ...oldData,
-        title: (<HTMLInputElement>popup.querySelector(ClassNames.todoEditTitle)).value,
-        description: (<HTMLInputElement>popup.querySelector(ClassNames.todoEditDescription)).value,
-    }
-
-    clientServer.updateRecord(newData);
-    new Render().updateItem(newData, document.querySelector(ClassNames.todoList), key);
+interface IListenersProps {
+    clientServer?: ClientServer;
+    target?: HTMLElement;
+    popup?: HTMLElement;
+    record?: ITodoItem;
+    key?: number;
 }
-export function removeRecordHandler(clientServer: ClientServer, key: number): void {
-    clientServer.removeRecord(key);
-    new Render().removeItem(clientServer, document.querySelector(ClassNames.todoList), key);
-}
-export function openFullInfo(clientServer: ClientServer, record: ITodoItem, key: number): void {
+
+export function openFullInfo({ clientServer, record, key }: IListenersProps, _: Event): void {
     const popupHTML = Utils.getTemplateClone(ClassNames.todoFull);
 
     popupHTML.querySelector(ClassNames.todoFullTitle).textContent = record.title;
@@ -37,13 +23,17 @@ export function openFullInfo(clientServer: ClientServer, record: ITodoItem, key:
     popupHTML.setAttribute('key', key.toString());
 
     new Popup(
-        removeRecordHandler.bind(null, clientServer, key),
+        {
+            title: 'Удалить',
+            handler: removeRecordHandler,
+            args: { key },
+        },
         popupHTML.outerHTML,
         [],
-        'Удалить'
+        clientServer
     ).show();
 }
-export function contextMenuOpen(clientServer: ClientServer, target: HTMLElement, record: ITodoItem, key: number): void {
+export function contextMenuOpen({ clientServer, target, record, key }: IListenersProps, _: Event,): void {
     new ContextMenu(
         <HTMLElement>target.nextElementSibling,
         [
@@ -53,7 +43,8 @@ export function contextMenuOpen(clientServer: ClientServer, target: HTMLElement,
                     title: 'Открыть',
                     className: '.todo-open-item'
                 },
-                handler: openFullInfo.bind(null, clientServer, record, key),
+                args: { record, key },
+                handler: openFullInfo,
                 statuses: [Statuses.init, Statuses.destroy]
             },
             {
@@ -62,7 +53,8 @@ export function contextMenuOpen(clientServer: ClientServer, target: HTMLElement,
                     title: 'Редактировать',
                     className: '.todo-edit-item'
                 },
-                handler: editRecord.bind(null, clientServer, record, key),
+                args: { record, key },
+                handler: editRecord,
                 statuses: [Statuses.init, Statuses.destroy]
             },
             {
@@ -71,13 +63,14 @@ export function contextMenuOpen(clientServer: ClientServer, target: HTMLElement,
                     title: 'Удалить',
                     className: '.todo-delete-item'
                 },
-                handler: removeRecordHandler.bind(null, clientServer, key),
+                args: { key },
+                handler: removeRecordHandler,
                 statuses: [Statuses.init, Statuses.destroy]
             },
-        ]
+        ], clientServer
     ).show();
 }
-export function editRecord(clientServer: ClientServer, record: ITodoItem, key: number): void {
+export function editRecord({ clientServer, record, key }: IListenersProps, _: Event): void {
     const popupHTML = Utils.getTemplateClone(ClassNames.todoEdit);
 
     popupHTML.querySelector(ClassNames.todoEditTitle).textContent = record.title;
@@ -85,13 +78,37 @@ export function editRecord(clientServer: ClientServer, record: ITodoItem, key: n
     popupHTML.setAttribute('key', key.toString());
 
     new Popup(
-        editRecordHandler.bind(null, clientServer, record, key),
+        {
+            title: 'Редактировать',
+            args: { record, key },
+            handler: editRecordHandler
+        },
         popupHTML.outerHTML,
         [],
-        'Редактировать'
+        clientServer
     ).show();
 }
-export function addRecordHandler(clientServer: ClientServer, evt: Event, popup: HTMLElement): void {
+export function addRecord({ clientServer }: IListenersProps, _: Event): void {
+    const popupHTML = Utils.getTemplateClone(ClassNames.todoAddPopupTemplate).innerHTML;
+
+    new Popup(
+        {
+            title: '',
+            args: {},
+            handler: addRecordHandler
+        },
+        popupHTML,
+        [],
+        clientServer
+    ).show();
+}
+
+
+export function removeRecordHandler({ clientServer, key }: IListenersProps, _: Event): void {
+    clientServer.removeRecord(key);
+    new Render().removeItem(clientServer, document.querySelector(ClassNames.todoList), key);
+}
+export function addRecordHandler({ clientServer, popup }: IListenersProps, _: Event): void {
     const title = (<HTMLInputElement>popup.querySelector(ClassNames.todoAddPopupTitleInput)).value;
     const description = (<HTMLInputElement>popup.querySelector(ClassNames.todoAddPopupDescriptionInput)).value;
     const data = {
@@ -106,12 +123,15 @@ export function addRecordHandler(clientServer: ClientServer, evt: Event, popup: 
     new Render()
         .renderItem(undefined, undefined, data)
 }
-export function addRecord(clientServer: ClientServer): void {
-    const popupHTML = Utils.getTemplateClone(ClassNames.todoAddPopupTemplate).innerHTML;
+export function editRecordHandler({ clientServer, record, key, popup }: IListenersProps, _: Event): void {
+    const oldData = <ITodoItem>clientServer.getData(key);
 
-    new Popup(
-        addRecordHandler.bind(null, clientServer),
-        popupHTML,
-        []
-    ).show();
+    const newData: ITodoItem = {
+        ...oldData,
+        title: (<HTMLInputElement>popup.querySelector(ClassNames.todoEditTitle)).value,
+        description: (<HTMLInputElement>popup.querySelector(ClassNames.todoEditDescription)).value,
+    }
+
+    clientServer.updateRecord(newData);
+    new Render().updateItem(newData, document.querySelector(ClassNames.todoList), key);
 }

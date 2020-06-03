@@ -3,6 +3,13 @@ import Utils from '../utils/Utils';
 import ELActionsHandler from '../utils/ELActionsHandler';
 import {IEventListItem} from '../misc/interface';
 import {Statuses} from '../misc/Statuses';
+import ClientServer from '../utils/ClientServer';
+
+interface IAcceptProps {
+    handler: Function;
+    title: string;
+    args: {};
+}
 
 abstract class ACPopup {
     protected _popup: HTMLElement;
@@ -13,7 +20,7 @@ abstract class ACPopup {
     protected _elHandler: ELActionsHandler;
     protected _externalEventHandler: ELActionsHandler;
     protected _acceptButtonText: string;
-    protected _acceptHandler: Function;
+    protected _acceptProps: IAcceptProps;
 
     protected _init(): void {};
     abstract show(): Popup;
@@ -32,10 +39,10 @@ export default class Popup extends ACPopup {
 
 
     constructor(
-        protected _acceptHandler: Function,
+        protected _acceptProps: IAcceptProps,
         private _externalHTML: string,
         private _externalEventList: IEventListItem[],
-        protected _acceptButtonText: string = 'Ок'
+        private _clientServer: ClientServer
     ) {
         super();
         this._init();
@@ -65,6 +72,7 @@ export default class Popup extends ACPopup {
         this._elHandler = new ELActionsHandler([
             {
                 elements: [this._closeButton, this._declineButton],
+                args: {},
                 actions: ['click'],
                 statuses: [Statuses.init, Statuses.destroy],
                 handler: this.hide.bind(this)
@@ -73,13 +81,22 @@ export default class Popup extends ACPopup {
                 elements: [this._acceptButton],
                 actions: ['click'],
                 statuses: [Statuses.init, Statuses.destroy],
-                handler: evt => { this._acceptHandler(evt, this._popup); this.hide() }
+                args: { ...this._acceptProps.args },
+                handler: (args: {}, evt: Event) => {
+                    this._acceptProps.handler({
+                        popup: this._popup,
+                        ...args
+                    }, evt);
+                    this.hide();
+                }
             }
-        ]);
+        ], this._clientServer);
         this._externalEventHandler = new ELActionsHandler(
-            this._externalEventList
+            this._externalEventList, this._clientServer
         );
-        this._acceptButton.textContent = this._acceptButtonText;
+
+        if (this._acceptProps.title)
+            this._acceptButton.textContent = this._acceptProps.title;
 
         this._popupBody.innerHTML = this._externalHTML;
     }
