@@ -12,6 +12,7 @@
   "devDependencies": {
     "css-loader": "3.5.3",
     "file-loader": "6.0.0",
+    "firebase": "7.14.6",
     "miragejs": "^0.1.40",
     "sass": "1.26.7",
     "sass-loader": "8.0.2",

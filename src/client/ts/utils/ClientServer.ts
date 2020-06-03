@@ -16,7 +16,7 @@ export default class ClientServer extends ACClientServer {
     protected _data: ITodoItem[];
 
     async renderList(): Promise<void> {
-        this._data = await fetch(`/api/${Routes.todos}`).then(data => data.json());;
+        this._data = await fetch(`/api/${Routes.getTodos}`).then(data => data.json());
 
         new Render().renderList(this);
     }
@@ -28,6 +28,11 @@ export default class ClientServer extends ACClientServer {
     }
     addData(items: ITodoItem[]): void {
         this._data = [...this._data, ...items];
+
+        fetch(`/api/${Routes.addTodo}`, {
+            method: 'POST',
+            body: JSON.stringify(this._data)
+        });
     }
     updateRecord(record: ITodoItem): void {
         this._data = this._data.map(r => {

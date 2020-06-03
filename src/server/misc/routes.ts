@@ -1,4 +1,5 @@
 export enum Routes {
-    todos = 'todos',
+    getTodos = 'getTodos',
+    addTodo = 'updateTodo',
     default = 'default',
 }

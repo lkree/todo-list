@@ -121,7 +121,7 @@ export function addRecordHandler({ clientServer, popup }: IListenersProps, _: Ev
 
     clientServer.addData([data]);
     new Render()
-        .renderItem(undefined, undefined, data)
+        .renderItem(undefined, undefined, data);
 }
 export function editRecordHandler({ clientServer, record, key, popup }: IListenersProps, _: Event): void {
     const oldData = <ITodoItem>clientServer.getData(key);
