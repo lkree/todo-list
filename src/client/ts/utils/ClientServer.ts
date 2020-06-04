@@ -43,23 +43,31 @@ export default class ClientServer extends ACClientServer {
             return r;
         });
 
+        const index = this._data.indexOf(record);
+
         fetch(`/api/${Routes.updateTodo}`, {
             method: 'POST',
-            body: JSON.stringify(this._data)
+            body: JSON.stringify({ index, record })
         });
     }
     removeRecord(key: number): void {
         const record = this._data.find(r => r.key === key);
-        const recordIndex = this._data.indexOf(record);
+        const index = this._data.indexOf(record);
 
-        if (record.deleted)
-            this._data.splice(recordIndex, 1);
-        else
-            this._data[recordIndex].deleted = true;
+        if (record.deleted) {
+            this._data.splice(index, 1);
 
-        fetch(`/api/${Routes.deleteTodo}`, {
-            method: 'POST',
-            body: JSON.stringify(this._data)
-        });
+            fetch(`/api/${Routes.deleteTodo}`, {
+                method: 'POST',
+                body: JSON.stringify({ index, record })
+            });
+        } else {
+            this._data[index].deleted = true;
+
+            fetch(`/api/${Routes.updateTodo}`, {
+                method: 'POST',
+                body: JSON.stringify({ index })
+            });
+        }
     }
 }

@@ -4,11 +4,16 @@ import 'firebase/database';
 import {Routes} from '../misc/routes';
 import {IConfig, ITodoItem} from '../misc/interfaces';
 
+interface IPostProps {
+    index?: number;
+    record?: ITodoItem;
+}
+
 abstract class ACDatabase {
     protected async [Routes.getTodos](): Promise<ITodoItem[]>;
     protected async [Routes.addTodo](todos: string): Promise<void>;
-    protected async [Routes.updateTodo](todos: string): Promise<void>;
-    protected async [Routes.deleteTodo](todos: string): Promise<void>;
+    protected async [Routes.updateTodo](postProps: string): Promise<void>;
+    protected async [Routes.deleteTodo](postProps: string): Promise<void>;
     abstract [Routes.default](): { error: string };
 }
 
@@ -56,18 +61,25 @@ export default class Database extends ACDatabase {
     protected async [Routes.getTodos](): Promise<ITodoItem[]> {
         // TODO сделать разделение на юзеров
         return this._database
-            .ref('todos')
+            .ref('/todos/')
             .once('value')
             .then((data: { val: Function }): ITodoItem[] => data.val());
     }
     protected async [Routes.addTodo](todos: string): Promise<void> {
         return firebase.database().ref().update({ todos: JSON.parse(todos) });
     }
-    protected async [Routes.updateTodo](todos: string): Promise<void> {
-        return firebase.database().ref().update({ todos: JSON.parse(todos) });
+    protected async [Routes.updateTodo](postProps: string): Promise<void> {
+        // TODO сделать нормальную генерацию путей для записи / обновления в базе
+        const { record, index }: IPostProps = JSON.parse(postProps);
+
+        return firebase.database().ref(`/todos/${index}`).update(record);
     }
-    protected async [Routes.deleteTodo](todos: string): Promise<void> {
-        return firebase.database().ref().update({ todos: JSON.parse(todos) });
+    protected async [Routes.deleteTodo](postProps: string): Promise<void> {
+        // TODO сделать нормальную генерацию путей для записи / обновления в базе
+        // TODO сделать единообразный способ обмена данными с абстракцией базы
+        const { index }: IPostProps = JSON.parse(postProps);
+
+        return firebase.database().ref(`/todos/${index}`).remove();
     }
     [Routes.default](): { error: string } {
         return {error: 'route didnt found'};
