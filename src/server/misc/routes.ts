@@ -1,5 +1,7 @@
 export enum Routes {
     getTodos = 'getTodos',
-    addTodo = 'updateTodo',
+    addTodo = 'addTodo',
+    updateTodo = 'updateTodo',
+    deleteTodo = 'deleteTodo',
     default = 'default',
 }

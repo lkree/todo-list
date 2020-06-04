@@ -7,6 +7,8 @@ import {IConfig, ITodoItem} from '../misc/interfaces';
 abstract class ACDatabase {
     protected async [Routes.getTodos](): Promise<ITodoItem[]>;
     protected async [Routes.addTodo](todos: string): Promise<void>;
+    protected async [Routes.updateTodo](todos: string): Promise<void>;
+    protected async [Routes.deleteTodo](todos: string): Promise<void>;
     abstract [Routes.default](): { error: string };
 }
 
@@ -21,7 +23,7 @@ export default class Database extends ACDatabase {
     // tslint:disable-next-line:no-any
     private _database: any;
 
-    constructor(private _request: Routes) {
+    constructor() {
         super();
         this._config = {
             apiKey: 'AIzaSyBiac6pxapIUjw6FOtnIHzsXshu5xbVNoE',
@@ -36,17 +38,17 @@ export default class Database extends ACDatabase {
         this._database = firebase.database();
     }
 
-    getResponse(): unknown {
+    getResponse(request: Routes): unknown {
         return (
-            this[this._request]
-                ? this[this._request]
+            this[request]
+                ? this[request]
                 : this[Routes.default]
         ).call(this);
     }
-    setResponse(response: string): void {
+    setResponse(request: Routes, response: string): void {
         return (
-            this[this._request]
-                ? this[this._request]
+            this[request]
+                ? this[request]
                 : this[Routes.default]
         ).call(this, response);
     }
@@ -59,7 +61,13 @@ export default class Database extends ACDatabase {
             .then((data: { val: Function }): ITodoItem[] => data.val());
     }
     protected async [Routes.addTodo](todos: string): Promise<void> {
-        return firebase.database().ref().update(todos);
+        return firebase.database().ref().update({ todos: JSON.parse(todos) });
+    }
+    protected async [Routes.updateTodo](todos: string): Promise<void> {
+        return firebase.database().ref().update({ todos: JSON.parse(todos) });
+    }
+    protected async [Routes.deleteTodo](todos: string): Promise<void> {
+        return firebase.database().ref().update({ todos: JSON.parse(todos) });
     }
     [Routes.default](): { error: string } {
         return {error: 'route didnt found'};

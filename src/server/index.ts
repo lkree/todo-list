@@ -6,7 +6,14 @@ import {Routes} from './misc/routes';
 import Schema from 'miragejs/orm/schema';
 
 export default class Server {
-    static init(): void {
+    protected _database: Database;
+
+    constructor() {
+        this._database = new Database();
+    }
+
+    init(): void {
+        const self = this;
         // tslint:disable-next-line:no-unused-expression
         new Backend({
             routes(): void {
@@ -15,13 +22,13 @@ export default class Server {
                 this.get('/:route', (_: Schema<unknown>, fakeRequest: Request) => {
                     const request: Routes = fakeRequest.params.route;
 
-                    return new Database(request).getResponse();
+                    return self._database.getResponse(request);
                 });
 
                 this.post('/:route', (_: Schema<unknown>, fakeRequest: Request) => {
                     const request: Routes = fakeRequest.params.route;
 
-                    return new Database(request).setResponse(fakeRequest.requestBody);
+                    return self._database.setResponse(request, fakeRequest.requestBody);
                 })
             },
         })

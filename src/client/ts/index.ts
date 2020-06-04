@@ -18,7 +18,7 @@ class App extends ACApp {
     async init(): Promise<void> {
         const clientServerHandler = new ClientServer();
 
-        Server.init();
+        new Server().init();
         Loader.show();
         await clientServerHandler.renderList();
         new ELActionsHandler([
