@@ -1,29 +1,30 @@
-import {ITodoItem} from '../../../server/misc/interfaces';
 import {ClassNames} from '../misc/classNames';
 import Utils from '../utils/Utils';
 import ClientServer from '../utils/ClientServer';
-import {IListOfAction} from '../misc/interface';
+import {ICommonData, IListOfAction, ITodoItem} from '../misc/interface';
 
 abstract class ACRender {
     protected _template: HTMLTemplateElement;
 
-    abstract renderList(clientServer: ClientServer): void;
+    abstract renderList(data: ICommonData['todos']): void;
     abstract renderItem(wrapper: Element, template: HTMLElement, data: ITodoItem): void;
     abstract removeItem(clientServer: ClientServer, wrapper: Element, key: number): void;
-    abstract updateItem(record: ITodoItem, wrapper: HTMLElement, key: number): void;
+    abstract updateItem(
+        { record, todoList, key, target, className }
+        : { record: ITodoItem, todoList: HTMLElement, key: number, target: HTMLElement, className: ClassNames }
+    ): void;
 }
 
 export default class Render extends ACRender {
     protected _template: HTMLTemplateElement = document.querySelector('template');
 
-    renderList(clientServer: ClientServer): void {
-        const data = <ITodoItem[]>clientServer.getData();
+    renderList(data: ICommonData['todos']): void {
         const listItemTemplate = this._template.content.querySelector(ClassNames.todoItem).cloneNode(true);
         const fragment = document.createDocumentFragment();
         const listWrapper = document.querySelector(ClassNames.todoWrapper);
         const renderItem = this.renderItem.bind(this, fragment, <HTMLElement>listItemTemplate);
 
-        data.forEach(renderItem);
+        Object.keys(data).forEach(k => renderItem(data[k]));
 
         listWrapper.append(fragment);
     }
@@ -54,10 +55,28 @@ export default class Render extends ACRender {
         else
             removeRecordNode.classList.add(Utils.getShortClassName(ClassNames.todoItemDeleted));
     }
-    updateItem(record: ITodoItem, wrapper: HTMLElement, key: number): void {
-        const recordElement = wrapper.querySelector(`[key="${key}"]`);
+    updateItem(
+        { record, todoList, key, target, className }
+        : { record?: ITodoItem, todoList?: HTMLElement, key?: number, target?: HTMLElement, className?: ClassNames }
+    ): void {
+        if (todoList)
+            this._updateOnTodoList({ record, todoList, key });
+        if (target)
+            this._updateTarget({ target, className });
+    }
+
+    private _updateOnTodoList(
+        { record, todoList, key }: { record: ITodoItem, todoList: HTMLElement, key: number }
+    ): void {
+        const recordElement = todoList.querySelector(`[key="${key}"]`);
 
         recordElement.querySelector(ClassNames.todoItemHeader).textContent = record.title;
+    }
+
+    private _updateTarget(
+        { target, className }: { target: HTMLElement, className: ClassNames }
+    ): void {
+        target.classList.toggle(Utils.getShortClassName(className));
     }
 
     static renderContextMenu(items: IListOfAction[], wrapper: HTMLElement): void {

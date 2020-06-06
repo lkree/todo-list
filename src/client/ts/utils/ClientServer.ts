@@ -1,73 +1,61 @@
 import {Routes} from '../../../server/misc/routes';
 import Render from '../components/Render';
-import {ITodoItem} from '../../../server/misc/interfaces';
+import {ICommonData, ITodoItem} from '../misc/interface';
 
 abstract class ACClientServer {
-    protected _data: ITodoItem[];
+    protected _data: ICommonData;
 
     abstract renderList(): void;
-    abstract getData(key?: number): ITodoItem[] | ITodoItem;
-    abstract addData(items: ITodoItem[]): void;
+    abstract getData(key?: number): ITodoItem | ICommonData['todos'];
+    abstract addData(item: ITodoItem): void;
     abstract updateRecord(record: ITodoItem): void;
     abstract removeRecord(key: number): void;
 }
 
 export default class ClientServer extends ACClientServer {
-    protected _data: ITodoItem[];
+    protected _data: ICommonData;
 
     async renderList(): Promise<void> {
         this._data = await fetch(`/api/${Routes.getTodos}`).then(data => data.json());
 
-        new Render().renderList(this);
+        new Render().renderList(this._data.todos);
     }
 
-    getData(key?: number): ITodoItem | ITodoItem[] {
+    getData(key?: number): ITodoItem | ICommonData['todos'] {
         return key
-            ? this._data.find(r => r.key === key)
-            : this._data;
+            ? this._data.todos[key]
+            : this._data.todos;
     }
-    addData(items: ITodoItem[]): void {
-        this._data = [...this._data, ...items];
+    addData(item: ITodoItem): void {
+        this._data = {
+            ...this._data,
+            todos: { ...this._data.todos , [item.key]: item },
+        };
 
         fetch(`/api/${Routes.addTodo}`, {
             method: 'POST',
-            body: JSON.stringify(this._data)
+            body: JSON.stringify(this._data.todos)
         });
     }
     updateRecord(record: ITodoItem): void {
-        this._data = this._data.map(r => {
-            if (r.key === record.key) {
-                return record;
-            }
-
-            return r;
-        });
-
-        const index = this._data.indexOf(record);
+        this._data.todos[record.key] = record;
 
         fetch(`/api/${Routes.updateTodo}`, {
             method: 'POST',
-            body: JSON.stringify({ index, record })
+            body: JSON.stringify({ key: record.key, record })
         });
     }
     removeRecord(key: number): void {
-        const record = this._data.find(r => r.key === key);
-        const index = this._data.indexOf(record);
+        const record = this._data.todos[key];
 
-        if (record.deleted) {
-            this._data.splice(index, 1);
+        if (record.deleted)
+            delete this._data.todos[key];
+        else
+            this._data.todos[key].deleted = true;
 
-            fetch(`/api/${Routes.deleteTodo}`, {
-                method: 'POST',
-                body: JSON.stringify({ index, record })
-            });
-        } else {
-            this._data[index].deleted = true;
-
-            fetch(`/api/${Routes.updateTodo}`, {
-                method: 'POST',
-                body: JSON.stringify({ index })
-            });
-        }
+        fetch(`/api/${this._data.todos[key] ? Routes.updateTodo : Routes.deleteTodo}`, {
+            method: 'POST',
+            body: JSON.stringify({ key, record })
+        });
     }
 }

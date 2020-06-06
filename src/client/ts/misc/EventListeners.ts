@@ -1,11 +1,11 @@
 import ClientServer from '../utils/ClientServer';
-import {ITodoItem} from '../../../server/misc/interfaces';
 import {ClassNames} from './classNames';
 import Render from '../components/Render';
 import Utils from '../utils/Utils';
 import Popup from '../components/Popup';
 import ContextMenu from '../components/ContextMenu';
 import {Statuses} from './Statuses';
+import {ITodoItem} from './interface';
 
 interface IListenersProps {
     clientServer?: ClientServer;
@@ -93,7 +93,7 @@ export function addRecord({ clientServer }: IListenersProps, _: Event): void {
 
     new Popup(
         {
-            title: '',
+            title: 'Ок',
             args: {},
             handler: addRecordHandler
         },
@@ -101,6 +101,16 @@ export function addRecord({ clientServer }: IListenersProps, _: Event): void {
         [],
         clientServer
     ).show();
+}
+export function favouriteEdit({ clientServer, target, record }: IListenersProps, _: Event): void {
+    new Render().updateItem({ target, className: ClassNames.todoItemFavouriteButtonFilled });
+
+    const newRecord = {
+        ...record,
+        favourite: !record.favourite
+    };
+
+    clientServer.updateRecord(newRecord);
 }
 
 
@@ -119,7 +129,7 @@ export function addRecordHandler({ clientServer, popup }: IListenersProps, _: Ev
         deleted: false
     };
 
-    clientServer.addData([data]);
+    clientServer.addData(data);
     new Render()
         .renderItem(undefined, undefined, data);
 }
@@ -133,5 +143,5 @@ export function editRecordHandler({ clientServer, record, key, popup }: IListene
     }
 
     clientServer.updateRecord(newData);
-    new Render().updateItem(newData, document.querySelector(ClassNames.todoList), key);
+    new Render().updateItem({ record: newData, todoList: document.querySelector(ClassNames.todoList), key });
 }

@@ -1,3 +1,18 @@
+export interface ICommonData {
+    user: string;
+    todos: {
+        [key: string]: ITodoItem
+    };
+    error: string;
+}
+export interface ITodoItem {
+    key: number;
+    title: string;
+    description: string;
+    favourite: boolean;
+    deleted: boolean;
+}
+
 /* ELHandler */
 import {Statuses} from './Statuses';
 

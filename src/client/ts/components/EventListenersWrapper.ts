@@ -1,8 +1,8 @@
 import {ClassNames} from '../misc/classNames';
 import ClientServer from '../utils/ClientServer';
 import Utils from '../utils/Utils';
-import {ITodoItem} from '../../../server/misc/interfaces';
-import {addRecord, contextMenuOpen, openFullInfo} from '../misc/EventListeners';
+import {addRecord, contextMenuOpen, favouriteEdit, openFullInfo} from '../misc/EventListeners';
+import {ITodoItem} from '../misc/interface';
 
 abstract class ACEventListeners {
     static onAddButtonClick({ clientServer }: { clientServer: ClientServer }, evt: Event): void {};
@@ -21,11 +21,11 @@ export default class EventListenersWrapper extends ACEventListeners {
         const record = <ITodoItem>clientServer.getData(key);
 
         if (target.matches(ClassNames.todoItemFavouriteButton)) {
-            target.classList.toggle(Utils.getShortClassName(ClassNames.todoItemFavouriteButtonFilled));
+            favouriteEdit({ clientServer, target, record }, evt);
         } else if (target.matches(ClassNames.todoItemOptionsOpenButton)) {
-            contextMenuOpen({ clientServer, target, record, key }, {} as Event);
+            contextMenuOpen({ clientServer, target, record, key }, evt);
         } else {
-            openFullInfo({ clientServer, record, key }, {} as Event);
+            openFullInfo({ clientServer, record, key }, evt);
         }
     };
 }

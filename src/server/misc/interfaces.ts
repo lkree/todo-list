@@ -8,10 +8,3 @@ export interface IConfig {
     appId: string;
     measurementId?: string;
 }
-export interface ITodoItem {
-    key: number;
-    title: string;
-    description: string;
-    favourite: boolean;
-    deleted: boolean;
-}

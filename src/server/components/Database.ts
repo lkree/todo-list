@@ -2,19 +2,21 @@
 import * as firebase from 'firebase/app';
 import 'firebase/database';
 import {Routes} from '../misc/routes';
-import {IConfig, ITodoItem} from '../misc/interfaces';
+import {IConfig} from '../misc/interfaces';
+import {ICommonData, ITodoItem} from '../../client/ts/misc/interface';
+import Serializer from '../../client/ts/utils/Serializer';
 
 interface IPostProps {
-    index?: number;
+    key?: number;
     record?: ITodoItem;
 }
 
 abstract class ACDatabase {
-    protected async [Routes.getTodos](): Promise<ITodoItem[]>;
+    protected async [Routes.getTodos](): Promise<ICommonData>;
     protected async [Routes.addTodo](todos: string): Promise<void>;
     protected async [Routes.updateTodo](postProps: string): Promise<void>;
     protected async [Routes.deleteTodo](postProps: string): Promise<void>;
-    abstract [Routes.default](): { error: string };
+    abstract [Routes.default](): string;
 }
 
 // const todos = [
@@ -25,8 +27,7 @@ abstract class ACDatabase {
 
 export default class Database extends ACDatabase {
     private readonly _config: IConfig;
-    // tslint:disable-next-line:no-any
-    private _database: any;
+    private _database: firebase.database.Database;
 
     constructor() {
         super();
@@ -58,30 +59,30 @@ export default class Database extends ACDatabase {
         ).call(this, response);
     }
 
-    protected async [Routes.getTodos](): Promise<ITodoItem[]> {
+    protected async [Routes.getTodos](): Promise<ICommonData> {
         // TODO сделать разделение на юзеров
         return this._database
-            .ref('/todos/')
-            .once('value')
-            .then((data: { val: Function }): ITodoItem[] => data.val());
+                .ref('/')
+                .once('value')
+                .then((data: { val: Function }): ICommonData => Serializer.unserialize(data.val()));
     }
     protected async [Routes.addTodo](todos: string): Promise<void> {
-        return firebase.database().ref().update({ todos: JSON.parse(todos) });
+        return firebase.database().ref('/todos/').set(JSON.parse(todos));
     }
     protected async [Routes.updateTodo](postProps: string): Promise<void> {
         // TODO сделать нормальную генерацию путей для записи / обновления в базе
-        const { record, index }: IPostProps = JSON.parse(postProps);
+        const { record, key }: IPostProps = JSON.parse(postProps);
 
-        return firebase.database().ref(`/todos/${index}`).update(record);
+        return firebase.database().ref(`/todos/${key}`).update(record);
     }
     protected async [Routes.deleteTodo](postProps: string): Promise<void> {
         // TODO сделать нормальную генерацию путей для записи / обновления в базе
         // TODO сделать единообразный способ обмена данными с абстракцией базы
-        const { index }: IPostProps = JSON.parse(postProps);
+        const { key }: IPostProps = JSON.parse(postProps);
 
-        return firebase.database().ref(`/todos/${index}`).remove();
+        return firebase.database().ref(`/todos/${key}`).remove();
     }
-    [Routes.default](): { error: string } {
-        return {error: 'route didnt found'};
+    [Routes.default](): string {
+        return Serializer.serialize(<ICommonData>{ error: 'route didnt found' });
     }
 }
