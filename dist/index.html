@@ -8,14 +8,14 @@
         content="ie=edge">
   <title>TO-DO list</title>
 </head>
-<body class="container-fluid position-relative">
-<section class="main-header row h-25 d-flex bg-primary">
-  <header class="text-white col-12  align-self-end main-header__title">TO-DO list</header>
+<body class="main">
+<section class="main__header main-header">
+  <header class="main-header__title">TO-DO list</header>
 </section>
-<main class="row">
+<main class="main__body">
   <section class="spinner spinner--hide">
-    <div class="spinner-border text-primary" role="status">
-      <span class="sr-only">Loading...</span>
+    <div class="spinner__body">
+      <span class="spinner__text">Loading...</span>
     </div>
   </section>
   <section class="popup">
@@ -30,27 +30,25 @@
       </div>
     </div>
   </section>
-  <section class="main-add position-absolute">
+  <section class="main-add">
     <button class="main-add__button"></button>
   </section>
-  <section class="pt-5 w-100">
+  <section class="main__todo-list">
     <ul class="todo-list"></ul>
   </section>
 </main>
 <template>
   <section class="todo-item">
-    <li class="row todo-list__item mt-3 w-100">
-      <div class="col-2"></div>
-      <main class="col-10 todo-list__info">
-        <div class="row">
-          <header class="col-8 todo-list__header">test header</header>
-          <div class="col-2">
-            <button class="todo-list__favourite-button"></button>
-          </div>
-          <div class="col-2 todo-list__options">
-            <button class="todo-list__options-open-button"></button>
-            <ul class="context-menu"></ul>
-          </div>
+    <li class="todo-list__item">
+      <div class="todo-list__checkbox"></div>
+      <main class="todo-list__info">
+        <header class="todo-list__header">test header</header>
+        <div class="todo-list__favourite-button-wrapper">
+          <button class="todo-list__favourite-button"></button>
+        </div>
+        <div class="todo-list__options">
+          <button class="todo-list__options-open-button"></button>
+          <ul class="context-menu"></ul>
         </div>
       </main>
     </li>
@@ -61,19 +59,33 @@
     <br>
     <div class="todo-add__description">Описание</div>
     <textarea class="todo-add__description-input"
-              cols="30"
+              cols="20"
               rows="10"></textarea>
+    <br>
+    <label class="todo-add__favourite-wrapper">
+      <input type="checkbox" class="todo-add__favourite">
+      Favourite
+    </label>
   </section>
   <section class="todo-full">
     <p class="todo-full__title"></p>
     <p class="todo-full__description"></p>
+    <div class="todo-full__favourite-wrapper">
+      Избранное: <span class="todo-full__favourite"></span>
+    </div>
   </section>
   <section class="context-menu">
     <li class="context-menu__item"></li>
   </section>
   <section class="todo-edit">
     <textarea class="todo-edit__title"></textarea>
+    <br>
     <textarea class="todo-edit__description"></textarea>
+    <br>
+    <label class="todo-edit__favourite-wrapper">
+      <input type="checkbox" class="todo-edit__favourite">
+      Favourite
+    </label>
   </section>
 </template>
 </body>

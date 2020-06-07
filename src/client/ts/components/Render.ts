@@ -38,6 +38,9 @@ export default class Render extends ACRender {
         element.querySelector(ClassNames.todoItemHeader).textContent = data.title;
         element.setAttribute('key', data.key.toString());
 
+        if (data.deleted)
+            element.classList.add(Utils.getShortClassName(ClassNames.todoItemDeleted))
+
         if (data.favourite)
             element
                 .querySelector(ClassNames.todoItemFavouriteButton)
@@ -71,6 +74,10 @@ export default class Render extends ACRender {
         const recordElement = todoList.querySelector(`[key="${key}"]`);
 
         recordElement.querySelector(ClassNames.todoItemHeader).textContent = record.title;
+        recordElement
+            .querySelector(ClassNames.todoItemFavouriteButton)
+            .classList[record.favourite ? 'add' : 'remove']
+                (Utils.getShortClassName(ClassNames.todoItemFavouriteButtonFilled));
     }
 
     private _updateTarget(

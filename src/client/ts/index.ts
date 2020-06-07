@@ -1,4 +1,3 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
 import './../css/index.sass';
 
 import Loader from './components/Loader';

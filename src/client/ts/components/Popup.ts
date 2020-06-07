@@ -40,7 +40,7 @@ export default class Popup extends ACPopup {
 
     constructor(
         protected _acceptProps: IAcceptProps,
-        private _externalHTML: string,
+        private _externalHTML: HTMLElement,
         private _externalEventList: IEventListItem[],
         private _clientServer: ClientServer
     ) {
@@ -98,6 +98,6 @@ export default class Popup extends ACPopup {
         if (this._acceptProps.title)
             this._acceptButton.textContent = this._acceptProps.title;
 
-        this._popupBody.innerHTML = this._externalHTML;
+        this._popupBody.append(this._externalHTML);
     }
 }

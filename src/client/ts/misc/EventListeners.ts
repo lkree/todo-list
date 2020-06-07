@@ -20,15 +20,16 @@ export function openFullInfo({ clientServer, record, key }: IListenersProps, _: 
 
     popupHTML.querySelector(ClassNames.todoFullTitle).textContent = record.title;
     popupHTML.querySelector(ClassNames.todoFullDescription).textContent = record.description;
+    popupHTML.querySelector(ClassNames.todoFullFavourite).textContent = record.favourite ? 'Да' : 'Нет';
     popupHTML.setAttribute('key', key.toString());
 
     new Popup(
         {
-            title: 'Удалить',
-            handler: removeRecordHandler,
-            args: { key },
+            title: 'Ок',
+            handler: () => {},
+            args: {},
         },
-        popupHTML.outerHTML,
+        popupHTML,
         [],
         clientServer
     ).show();
@@ -57,6 +58,16 @@ export function contextMenuOpen({ clientServer, target, record, key }: IListener
                 handler: editRecord,
                 statuses: [Statuses.init, Statuses.destroy]
             },
+            (record.deleted && {
+                actions: ['click'],
+                listOfActions: {
+                    title: 'Восстановить',
+                    className: '.todo-restore-item'
+                },
+                args: { key, target, record },
+                handler: restoreRecord,
+                statuses: [Statuses.init, Statuses.destroy]
+            }),
             {
                 actions: ['click'],
                 listOfActions: {
@@ -67,14 +78,16 @@ export function contextMenuOpen({ clientServer, target, record, key }: IListener
                 handler: removeRecordHandler,
                 statuses: [Statuses.init, Statuses.destroy]
             },
-        ], clientServer
+        ].filter(Boolean), clientServer
     ).show();
 }
 export function editRecord({ clientServer, record, key }: IListenersProps, _: Event): void {
     const popupHTML = Utils.getTemplateClone(ClassNames.todoEdit);
+    const favouriteCheckbox: HTMLInputElement = popupHTML.querySelector(ClassNames.todoEditFavourite);
 
     popupHTML.querySelector(ClassNames.todoEditTitle).textContent = record.title;
     popupHTML.querySelector(ClassNames.todoEditDescription).textContent = record.description;
+    favouriteCheckbox.checked = record.favourite;
     popupHTML.setAttribute('key', key.toString());
 
     new Popup(
@@ -83,13 +96,13 @@ export function editRecord({ clientServer, record, key }: IListenersProps, _: Ev
             args: { record, key },
             handler: editRecordHandler
         },
-        popupHTML.outerHTML,
+        popupHTML,
         [],
         clientServer
     ).show();
 }
 export function addRecord({ clientServer }: IListenersProps, _: Event): void {
-    const popupHTML = Utils.getTemplateClone(ClassNames.todoAddPopupTemplate).innerHTML;
+    const popupHTML = Utils.getTemplateClone(ClassNames.todoAddPopupTemplate);
 
     new Popup(
         {
@@ -102,8 +115,25 @@ export function addRecord({ clientServer }: IListenersProps, _: Event): void {
         clientServer
     ).show();
 }
-export function favouriteEdit({ clientServer, target, record }: IListenersProps, _: Event): void {
-    new Render().updateItem({ target, className: ClassNames.todoItemFavouriteButtonFilled });
+export function restoreRecord({ clientServer, record, target }: IListenersProps, _: Event): void {
+    const updatedRecord = {
+        ...record,
+        deleted: !record.deleted
+    }
+
+    new Render().updateItem({
+        target: target.closest(ClassNames.todoItem),
+        className: ClassNames.todoItemDeleted
+    });
+    clientServer.updateRecord(updatedRecord);
+}
+export function favouriteEdit({ clientServer, record }: IListenersProps, _: Event): void {
+    const todoItem: HTMLElement = document
+        .querySelector(ClassNames.todoList)
+        .querySelector(`[key="${record.key}"]`)
+        .querySelector(ClassNames.todoItemFavouriteButton);
+
+    new Render().updateItem({ target: todoItem, className: ClassNames.todoItemFavouriteButtonFilled });
 
     const newRecord = {
         ...record,
@@ -121,9 +151,10 @@ export function removeRecordHandler({ clientServer, key }: IListenersProps, _: E
 export function addRecordHandler({ clientServer, popup }: IListenersProps, _: Event): void {
     const title = (<HTMLInputElement>popup.querySelector(ClassNames.todoAddPopupTitleInput)).value;
     const description = (<HTMLInputElement>popup.querySelector(ClassNames.todoAddPopupDescriptionInput)).value;
+    const favourite = (<HTMLInputElement>popup.querySelector(ClassNames.todoAddPopupFavourite)).checked;
     const data = {
         key: Date.now(),
-        favourite: false,
+        favourite,
         title,
         description,
         deleted: false
@@ -140,6 +171,7 @@ export function editRecordHandler({ clientServer, record, key, popup }: IListene
         ...oldData,
         title: (<HTMLInputElement>popup.querySelector(ClassNames.todoEditTitle)).value,
         description: (<HTMLInputElement>popup.querySelector(ClassNames.todoEditDescription)).value,
+        favourite: (<HTMLInputElement>popup.querySelector(ClassNames.todoEditFavourite)).checked
     }
 
     clientServer.updateRecord(newData);
